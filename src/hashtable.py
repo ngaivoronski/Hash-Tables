@@ -54,7 +54,12 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        hashindex = self._hash_mod(key)
+        if self.storage[hashindex] is None:
+            self.storage[hashindex] = {key: value}
+        else:
+            print(f"error: collision at index {hashindex}")
+        print(f"current storage: {self.storage}")
 
 
 
@@ -66,7 +71,12 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        hashindex = self._hash_mod(key)
+        if self.storage[hashindex] is None:
+            print(f"error: no data at index {hashindex}")
+        else:
+            self.storage[hashindex] = None
+        print(f"current storage: {self.storage}")
 
 
     def retrieve(self, key):
@@ -77,7 +87,12 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        hashindex = self._hash_mod(key)
+        if self.storage[hashindex] is None:
+            return None
+        else:
+            return self.storage[hashindex]
+        print(f"current storage: {self.storage}")
 
 
     def resize(self):
@@ -87,7 +102,15 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        oldStorage = self.storage
+        self.capacity *= 2
+        self.storage = [None] * self.capacity
+        for item in oldStorage:
+            if item:
+                for key in item:
+                    self.insert(key, item[key])
+        print(f"current storage: {self.storage}")
+
 
 
 
