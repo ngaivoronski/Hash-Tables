@@ -15,6 +15,7 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
+        self.count = 0
 
 
     def _hash(self, key):
@@ -57,6 +58,11 @@ class HashTable:
         hashindex = self._hash_mod(key)
         if self.storage[hashindex] is None:
             self.storage[hashindex] = LinkedPair(key, value)
+            # increment the count
+            self.count += 1
+            # double capacity if hash table capacity exceeds load factor of 0.7
+            if self.count / self.capacity >= 0.7:
+                self.resize()
         else:
             currentPair = self.storage[hashindex]
             # loop through linked list until you get to the last item of the list
@@ -72,6 +78,11 @@ class HashTable:
             # otherwise, add a new linked pair at the end
             else:
                 currentPair.next = LinkedPair(key, value)
+                # increment the count
+                self.count += 1
+                # double capacity if hash table capacity exceeds load factor of 0.7
+                if self.count / self.capacity >= 0.7:
+                    self.resize()
 
 
 
@@ -83,10 +94,19 @@ class HashTable:
 
         Fill this in.
         '''
+
         hashindex = self._hash_mod(key)
         if self.storage[hashindex] is None:
             print(f"error: no data with key {key}")
         else:
+            # decrement the count
+            self.count -= 1
+            # half capacity if hash table capacity is below load factor of 0.2
+            if self.count / self.capacity <= 0.2:
+                self.shrink()
+                # reset the hash index
+                hashindex = self._hash_mod(key)
+
             currentPair = self.storage[hashindex]
             # if the first key matches the input key, replace the first linked pair with the next linked pair
             if currentPair.key == key:
@@ -127,9 +147,31 @@ class HashTable:
 
         Fill this in.
         '''
+        # reset count
+        self.count = 0
         # create a new storage that's double the capacity
         oldStorage = self.storage
         self.capacity *= 2
+        self.storage = [None] * self.capacity
+        # loop through the old storage and re-insert every linked pair into the new storage
+        for item in oldStorage:
+            if item:
+                while item is not None:
+                    self.insert(item.key, item.value)
+                    item = item.next
+    
+    def shrink(self):
+        '''
+        Halves the capacity of the hash table and
+        rehash all key/value pairs.
+
+        Fill this in.
+        '''
+        # reset count
+        self.count = 0
+        # create a new storage that's half the capacity
+        oldStorage = self.storage
+        self.capacity = int(self.capacity / 2)
         self.storage = [None] * self.capacity
         # loop through the old storage and re-insert every linked pair into the new storage
         for item in oldStorage:
