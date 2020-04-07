@@ -56,10 +56,22 @@ class HashTable:
         '''
         hashindex = self._hash_mod(key)
         if self.storage[hashindex] is None:
-            self.storage[hashindex] = {key: value}
+            self.storage[hashindex] = LinkedPair(key, value)
         else:
-            print(f"error: collision at index {hashindex}")
-        print(f"current storage: {self.storage}")
+            currentPair = self.storage[hashindex]
+            # loop through linked list until you get to the last item of the list
+            # if the key matches, however, stop
+            while currentPair.next is not None:
+                if currentPair.key == key:
+                    break
+                currentPair = currentPair.next
+            
+            # if you are at the key, replace its value
+            if currentPair.key == key:
+                currentPair.value = value
+            # otherwise, add a new linked pair at the end
+            else:
+                currentPair.next = LinkedPair(key, value)
 
 
 
@@ -73,10 +85,18 @@ class HashTable:
         '''
         hashindex = self._hash_mod(key)
         if self.storage[hashindex] is None:
-            print(f"error: no data at index {hashindex}")
+            print(f"error: no data with key {key}")
         else:
-            self.storage[hashindex] = None
-        print(f"current storage: {self.storage}")
+            currentPair = self.storage[hashindex]
+            # if the first key matches the input key, replace the first linked pair with the next linked pair
+            if currentPair.key == key:
+                self.storage[hashindex] = currentPair.next
+            else:
+                # find the linked pair before the key you're looking for
+                while currentPair.next and currentPair.next.key is not key:
+                    currentPair = currentPair.next
+                # link the previous linked pair with the next linked pair
+                currentPair.next = currentPair.next.next
 
 
     def retrieve(self, key):
@@ -91,8 +111,13 @@ class HashTable:
         if self.storage[hashindex] is None:
             return None
         else:
-            return self.storage[hashindex]
-        print(f"current storage: {self.storage}")
+            currentPair = self.storage[hashindex]
+            while currentPair.key is not key:
+                currentPair = currentPair.next
+                # make sure you don't loop forever
+                if currentPair is None:
+                    return None
+            return currentPair.value
 
 
     def resize(self):
@@ -102,14 +127,16 @@ class HashTable:
 
         Fill this in.
         '''
+        # create a new storage that's double the capacity
         oldStorage = self.storage
         self.capacity *= 2
         self.storage = [None] * self.capacity
+        # loop through the old storage and re-insert every linked pair into the new storage
         for item in oldStorage:
             if item:
-                for key in item:
-                    self.insert(key, item[key])
-        print(f"current storage: {self.storage}")
+                while item is not None:
+                    self.insert(item.key, item.value)
+                    item = item.next
 
 
 
