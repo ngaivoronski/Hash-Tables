@@ -163,13 +163,17 @@ class TestHashTable(unittest.TestCase):
         ht.insert("key-4", "val-4")
         ht.insert("key-5", "val-5")
         ht.insert("key-6", "val-6")
+        # capacity is increased here to 16 since 6/8 is >= 0.7
         ht.insert("key-7", "val-7")
         ht.insert("key-8", "val-8")
         ht.insert("key-9", "val-9")
 
         ht.resize()
 
-        self.assertTrue(len(ht.storage) == 16)
+        # self.assertTrue(len(ht.storage) == 16)
+
+        # new capacity target is 32
+        self.assertTrue(len(ht.storage) == 32)
 
         return_value = ht.retrieve("key-0")
         self.assertTrue(return_value == "val-0")
